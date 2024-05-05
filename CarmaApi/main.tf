@@ -78,7 +78,7 @@ resource "aws_autoscaling_group" "ec2-cluster" {
 
 data "aws_iam_policy_document" "ec2" {
   statement {
-    effect = "Allow"
+    effect  = "Allow"
     actions = ["sts:AssumeRole"]
     principals {
       type        = "Service"
@@ -90,46 +90,51 @@ data "aws_iam_policy_document" "ec2" {
 resource "aws_iam_policy" "session-manager" {
   description = "session-manager"
   name        = "session-manager"
-  policy      = jsonencode({
-    "Version":"2012-10-17",
-    "Statement":[
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        "Action": "ec2:*",
-        "Effect": "Allow",
-        "Resource": "*"
+        "Action" : "ec2:*",
+        "Effect" : "Allow",
+        "Resource" : "*"
       },
-        {
-            "Effect": "Allow",
-            "Action": "elasticloadbalancing:*",
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": "cloudwatch:*",
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": "autoscaling:*",
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": "iam:CreateServiceLinkedRole",
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "iam:AWSServiceName": [
-                        "autoscaling.amazonaws.com",
-                        "ec2scheduled.amazonaws.com",
-                        "elasticloadbalancing.amazonaws.com",
-                        "spot.amazonaws.com",
-                        "spotfleet.amazonaws.com",
-                        "transitgateway.amazonaws.com"
-                    ]
-                }
-            }
+      {
+        "Action" : "ecr:*",
+        "Effect" : "Allow",
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : "elasticloadbalancing:*",
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : "cloudwatch:*",
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : "autoscaling:*",
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : "iam:CreateServiceLinkedRole",
+        "Resource" : "*",
+        "Condition" : {
+          "StringEquals" : {
+            "iam:AWSServiceName" : [
+              "autoscaling.amazonaws.com",
+              "ec2scheduled.amazonaws.com",
+              "elasticloadbalancing.amazonaws.com",
+              "spot.amazonaws.com",
+              "spotfleet.amazonaws.com",
+              "transitgateway.amazonaws.com"
+            ]
+          }
         }
+      }
     ]
   })
 }
@@ -148,63 +153,62 @@ resource "aws_iam_role" "session-manager" {
 }
 
 resource "aws_iam_instance_profile" "session-manager" {
-  name  = "session-manager"
-  role  = aws_iam_role.session-manager.name
+  name = "session-manager"
+  role = aws_iam_role.session-manager.name
 }
 
-resource "aws_instance" "bastion" {
-  ami                         = lookup(var.amis, var.region)
-  instance_type               = "${var.instance_type}"
-  key_name                    = aws_key_pair.terraform-lab.key_name
-  iam_instance_profile        = aws_iam_instance_profile.session-manager.id
-  associate_public_ip_address = true
-  security_groups            = [aws_security_group.ec2.id]
-  subnet_id                   = aws_subnet.public-subnet-1.id
-  tags = {
-    Name = "Bastion"
-  }
-}
+# resource "aws_instance" "bastion" {
+#   ami                         = lookup(var.amis, var.region)
+#   instance_type               = var.instance_type
+#   key_name                    = aws_key_pair.terraform-lab.key_name
+#   iam_instance_profile        = aws_iam_instance_profile.session-manager.id
+#   associate_public_ip_address = true
+#   security_groups             = [aws_security_group.ec2.id]
+#   subnet_id                   = aws_subnet.public-subnet-1.id
+#   tags = {
+#     Name = "Bastion"
+#   }
+# }
 
 resource "aws_launch_configuration" "ec2" {
   name                        = "${var.ec2_instance_name}-instance"
   image_id                    = lookup(var.amis, var.region)
-  instance_type               = "${var.instance_type}"
+  instance_type               = var.instance_type
   security_groups             = [aws_security_group.ec2.id]
   key_name                    = aws_key_pair.terraform-lab.key_name
   iam_instance_profile        = aws_iam_instance_profile.session-manager.id
   associate_public_ip_address = false
-  user_data = <<-EOL
+  user_data                   = <<-EOL
   #!/bin/bash -xe
   sudo yum update -y
   sudo yum -y install docker
   sudo service docker start
-  sudo usermod -a -G docker ec2-user
-  sudo chmod 666 /var/run/docker.sock
-  docker pull nginx
-  docker tag nginx my-nginx
+  aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 471112707365.dkr.ecr.us-east-1.amazonaws.com
+  docker pull 471112707365.dkr.ecr.us-east-1.amazonaws.com/ecrepo
+  docker tag 471112707365.dkr.ecr.us-east-1.amazonaws.com/ecrepo:latest my-nginx
   docker run --rm --name nginx-server -d -p 80:80 -t my-nginx
   EOL
-  depends_on = [aws_nat_gateway.terraform-lab-ngw]
+  depends_on                  = [aws_nat_gateway.terraform-lab-ngw]
 }
 
 
 
 
 resource "aws_ecr_repository" "ecr_repo" {
-	  name = "ecrepo"
-	
+  name = "ecrepo"
 
-	  image_scanning_configuration {
-	    scan_on_push = true
-	  }
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
 }
 
 
 resource "aws_ecr_lifecycle_policy" "default_policy" {
   repository = aws_ecr_repository.ecr_repo.name
-	
 
-	  policy = <<EOF
+
+  policy = <<EOF
 	{
 	    "rules": [
 	        {
@@ -229,22 +233,23 @@ data "aws_caller_identity" "current" {}
 
 
 resource "null_resource" "docker_push" {
-	
-	  provisioner "local-exec" {
-	    command = <<EOF
+
+  provisioner "local-exec" {
+    interpreter = ["PowerShell", "-Command"]
+    command     = <<EOF
+      docker buildx build -t "${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/ecrepo:latest" -f C:\Users\Varam\OneDrive\Desktop\.vscode\.vscode\CodeBase\Dockerfile .
 	    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com
-	    docker tag nginximage:latest 471112707365.dkr.ecr.us-east-1.amazonaws.com/ecrepo:latest
       docker push ${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/ecrepo:latest
 	    EOF
-	  }
-	
+  }
 
-	  triggers = {
-	    "run_at" = timestamp()
-	  }
-	
 
-	  depends_on = [
-	    aws_ecr_repository.ecr_repo
-	  ]
+  triggers = {
+    "run_at" = timestamp()
+  }
+
+
+  depends_on = [
+    aws_ecr_repository.ecr_repo
+  ]
 }

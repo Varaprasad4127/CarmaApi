@@ -9,7 +9,7 @@ resource "aws_vpc" "test_vpc" {
 }
 
 # Public subnetss
-resource "aws_subnet" "public-subnet-1" { 
+resource "aws_subnet" "public-subnet-1" {
   tags = {
     Name = "public-terraform-lab-subnet-1"
   }
@@ -17,7 +17,7 @@ resource "aws_subnet" "public-subnet-1" {
   vpc_id            = aws_vpc.test_vpc.id
   availability_zone = var.availability_zones[0]
 }
-resource "aws_subnet" "public-subnet-2" { 
+resource "aws_subnet" "public-subnet-2" {
   tags = {
     Name = "public-terraform-lab-subnet-2"
   }
