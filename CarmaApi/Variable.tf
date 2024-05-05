@@ -72,7 +72,8 @@ variable "autoscale_max" {
   description = "Maximum autoscale (number of EC2)"
   default     = "2"
 }
-variable "autoscale_desired" {
-  description = "Desired autoscale (number of EC2)"
-  default     = "2"
+
+variable "untagged_images" {
+  description = "Desired no.of untagged images"
+  default     = "1"
 }
