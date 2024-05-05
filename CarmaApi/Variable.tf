@@ -1,3 +1,8 @@
+variable "region" {
+  description = "The AWS region to create resources in."
+  default     = "us-east-2"
+}
+
 variable "vpc_cidr" {
   description = "CIDR Block for VPC"
   default     = "10.0.0.0/16"
@@ -20,7 +25,8 @@ variable "private_subnet_2_cidr" {
 }
 variable "availability_zones" {
   description = "Availability zones"
-  default     = "us-east-1a"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b"]
 }
 
 
@@ -45,4 +51,28 @@ variable "instance_type" {
 variable "ec2_instance_name" {
   description = "Name of the EC2 instance"
   default     = "test_server"
+}
+
+
+
+# key pair - Location to the SSH Key generate using openssl or ssh-keygen or AWS KeyPair
+variable "ssh_pubkey_file" {
+  description = "Path to an SSH public key"
+  default     = "~/.ssh/id_ed25519.pub"
+}
+
+
+# auto scaling
+
+variable "autoscale_min" {
+  description = "Minimum autoscale (number of EC2)"
+  default     = "2"
+}
+variable "autoscale_max" {
+  description = "Maximum autoscale (number of EC2)"
+  default     = "2"
+}
+variable "autoscale_desired" {
+  description = "Desired autoscale (number of EC2)"
+  default     = "2"
 }
