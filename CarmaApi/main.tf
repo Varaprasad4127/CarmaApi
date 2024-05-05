@@ -1,12 +1,12 @@
-resource "aws_instance" "test_server" {
-  ami           = "ami-07caf09b362be10b8"
-  instance_type = "t2.micro"
-  subnet_id     = aws_subnet.private-subnet-1.id
+# resource "aws_instance" "test_server" {
+#   ami           = "ami-07caf09b362be10b8"
+#   instance_type = "t2.micro"
+#   subnet_id     = aws_subnet.private-subnet-1.id
 
-  tags = {
-    Name = "server1"
-  }
-}
+#   tags = {
+#     Name = "server1"
+#   }
+# }
 
 
 # Load Balancer
@@ -78,6 +78,7 @@ resource "aws_autoscaling_group" "ec2-cluster" {
 
 data "aws_iam_policy_document" "ec2" {
   statement {
+    effect = "Allow"
     actions = ["sts:AssumeRole"]
     principals {
       type        = "Service"
@@ -133,6 +134,11 @@ resource "aws_iam_policy" "session-manager" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "test-attach" {
+  role       = aws_iam_role.session-manager.name
+  policy_arn = aws_iam_policy.session-manager.arn
+}
+
 resource "aws_iam_role" "session-manager" {
   assume_role_policy = data.aws_iam_policy_document.ec2.json
   name               = "session-manager"
@@ -160,7 +166,7 @@ resource "aws_instance" "bastion" {
 }
 
 resource "aws_launch_configuration" "ec2" {
-  name                        = "${var.ec2_instance_name}-instances-lc"
+  name                        = "${var.ec2_instance_name}-instance"
   image_id                    = lookup(var.amis, var.region)
   instance_type               = "${var.instance_type}"
   security_groups             = [aws_security_group.ec2.id]
@@ -179,4 +185,66 @@ resource "aws_launch_configuration" "ec2" {
   docker run --rm --name nginx-server -d -p 80:80 -t my-nginx
   EOL
   depends_on = [aws_nat_gateway.terraform-lab-ngw]
+}
+
+
+
+
+resource "aws_ecr_repository" "ecr_repo" {
+	  name = "ecrepo"
+	
+
+	  image_scanning_configuration {
+	    scan_on_push = true
+	  }
+}
+
+
+resource "aws_ecr_lifecycle_policy" "default_policy" {
+  repository = aws_ecr_repository.ecr_repo.name
+	
+
+	  policy = <<EOF
+	{
+	    "rules": [
+	        {
+	            "rulePriority": 1,
+	            "description": "Keep only the last ${var.untagged_images} untagged images.",
+	            "selection": {
+	                "tagStatus": "untagged",
+	                "countType": "imageCountMoreThan",
+	                "countNumber": ${var.untagged_images}
+	            },
+	            "action": {
+	                "type": "expire"
+	            }
+	        }
+	    ]
+	}
+	EOF
+}
+
+
+data "aws_caller_identity" "current" {}
+
+
+resource "null_resource" "docker_push" {
+	
+	  provisioner "local-exec" {
+	    command = <<EOF
+	    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com
+	    docker tag nginximage:latest 471112707365.dkr.ecr.us-east-1.amazonaws.com/ecrepo:latest
+      docker push ${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/ecrepo:latest
+	    EOF
+	  }
+	
+
+	  triggers = {
+	    "run_at" = timestamp()
+	  }
+	
+
+	  depends_on = [
+	    aws_ecr_repository.ecr_repo
+	  ]
 }

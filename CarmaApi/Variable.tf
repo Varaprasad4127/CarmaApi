@@ -1,6 +1,6 @@
 variable "region" {
   description = "The AWS region to create resources in."
-  default     = "us-east-2"
+  default     = "us-east-1"
 }
 
 variable "vpc_cidr" {
@@ -40,7 +40,7 @@ variable "health_check_path" {
 variable "amis" {
   description = "Which AMI to spawn."
   default = {
-    us-east-1 = "ami-05fa00d4c63e32376"
+    us-east-1 = "ami-07caf09b362be10b8"
     us-east-2 = "ami-0568773882d492fc8"
   }
 }
@@ -66,11 +66,15 @@ variable "ssh_pubkey_file" {
 
 variable "autoscale_min" {
   description = "Minimum autoscale (number of EC2)"
-  default     = "2"
+  default     = "1"
 }
 variable "autoscale_max" {
   description = "Maximum autoscale (number of EC2)"
-  default     = "2"
+  default     = "1"
+}
+variable "autoscale_desired" {
+  description = "Desired autoscale (number of EC2)"
+  default     = "1"
 }
 
 variable "untagged_images" {
