@@ -22,3 +22,27 @@ variable "availability_zones" {
   description = "Availability zones"
   default     = "us-east-1a"
 }
+
+
+# load balancer
+
+variable "health_check_path" {
+  description = "Health check path for the default target group"
+  default     = "/"
+}
+
+variable "amis" {
+  description = "Which AMI to spawn."
+  default = {
+    us-east-1 = "ami-05fa00d4c63e32376"
+    us-east-2 = "ami-0568773882d492fc8"
+  }
+}
+variable "instance_type" {
+  default = "t2.micro"
+}
+
+variable "ec2_instance_name" {
+  description = "Name of the EC2 instance"
+  default     = "test_server"
+}

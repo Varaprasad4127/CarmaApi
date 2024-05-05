@@ -9,118 +9,46 @@ resource "aws_instance" "test_server" {
 }
 
 
-# VPC
-resource "aws_vpc" "test_vpc" {
-  cidr_block           = var.vpc_cidr
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-  tags = {
-    Name = "terraform-lab-vpc"
+# Load Balancer
+resource "aws_lb" "test_alb" {
+  name               = "${var.ec2_instance_name}-alb"
+  load_balancer_type = "application"
+  internal           = false
+  security_groups    = [aws_security_group.load-balancer.id]
+  subnets            = [aws_subnet.public-subnet-1.id]
+}
+
+# Target group
+resource "aws_alb_target_group" "default-target-group" {
+  name     = "${var.ec2_instance_name}-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.test_vpc.id
+
+  health_check {
+    path                = var.health_check_path
+    port                = "traffic-port"
+    healthy_threshold   = 5
+    unhealthy_threshold = 2
+    timeout             = 2
+    interval            = 60
+    matcher             = "200"
   }
 }
 
-# Public subnetss
-resource "aws_subnet" "public-subnet-1" { 
-  tags = {
-    Name = "public-terraform-lab-subnet-1"
-  }
-  cidr_block        = var.public_subnet_1_cidr
-  vpc_id            = aws_vpc.test_vpc.id
-  availability_zone = var.availability_zones
-}
-# resource "aws_subnet" "public-subnet-2" { 
-#   tags = {
-#     Name = "public-terraform-lab-subnet-2"
-#   }
-#   cidr_block        = var.public_subnet_2_cidr
-#   vpc_id            = aws_vpc.terraform-lab-vpc.id
-#   availability_zone = var.availability_zones[1]
+# resource "aws_autoscaling_attachment" "asg_attachment_bar" {
+#   autoscaling_group_name = aws_autoscaling_group.ec2-cluster.id
+#   lb_target_group_arn    = aws_alb_target_group.default-target-group.arn
 # }
 
-# Private subnets
-resource "aws_subnet" "private-subnet-1" {
-  tags = {
-    Name = "private-terraform-lab-subnet-1"
-  }
-  cidr_block        = var.private_subnet_1_cidr
-  vpc_id            = aws_vpc.test_vpc.id
-  availability_zone = var.availability_zones
-}
-# resource "aws_subnet" "private-subnet-2" {
-#   tags = {
-#     Name = "private-terraform-lab-subnet-2"
-#   }
-#   cidr_block        = var.private_subnet_2_cidr
-#   vpc_id            = aws_vpc.terraform-lab-vpc.id
-#   availability_zone = var.availability_zones[1]
-# }
+resource "aws_alb_listener" "ec2-alb-http-listener" {
+  load_balancer_arn = aws_lb.test_alb.id
+  port              = "80"
+  protocol          = "HTTP"
+  depends_on        = [aws_alb_target_group.default-target-group]
 
-# Internet Gateway for the public subnet
-resource "aws_internet_gateway" "terraform-lab-igw" {
-  tags = {
-    Name = "terraform-lab-igw"
-  }
-  vpc_id = aws_vpc.test_vpc.id
-}
-
-# NAT Gateway for the public subnet
-resource "aws_eip" "nat_gateway" {
-  vpc                       = true
-  associate_with_private_ip = "10.0.0.5"
-  depends_on                = [aws_internet_gateway.terraform-lab-igw]
-}
-resource "aws_nat_gateway" "terraform-lab-ngw" {
-  allocation_id = aws_eip.nat_gateway.id
-  subnet_id     = aws_subnet.public-subnet-1.id
-
-  tags = {
-    Name = "terraform-lab-ngw"
-  }
-  depends_on = [aws_eip.nat_gateway]
-}
-
-# Route tables for the subnets
-resource "aws_route_table" "public-route-table" {
-  vpc_id = aws_vpc.test_vpc.id
-  tags = {
-    Name = "public-terraform-lab-route-table"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.default-target-group.arn
   }
 }
-resource "aws_route_table" "private-route-table" {
-  vpc_id = aws_vpc.test_vpc.id
-  tags = {
-    Name = "private-terraform-lab-route-table"
-  }
-}
-
-# Route the public subnet traffic through the Internet Gateway
-resource "aws_route" "public-internet-igw-route" {
-  route_table_id         = aws_route_table.public-route-table.id
-  gateway_id             = aws_internet_gateway.terraform-lab-igw.id
-  destination_cidr_block = "0.0.0.0/0"
-}
-
-# Route NAT Gateway
-resource "aws_route" "nat-ngw-route" {
-  route_table_id         = aws_route_table.private-route-table.id
-  nat_gateway_id         = aws_nat_gateway.terraform-lab-ngw.id
-  destination_cidr_block = "0.0.0.0/0"
-}
-
-# Associate the newly created route tables to the subnets
-resource "aws_route_table_association" "public-route-1-association" {
-  route_table_id = aws_route_table.public-route-table.id
-  subnet_id      = aws_subnet.public-subnet-1.id
-}
-# resource "aws_route_table_association" "public-route-2-association" {
-#   route_table_id = aws_route_table.public-route-table.id
-#   subnet_id      = aws_subnet.public-subnet-2.id
-# }
-resource "aws_route_table_association" "private-route-1-association" {
-  route_table_id = aws_route_table.private-route-table.id
-  subnet_id      = aws_subnet.private-subnet-1.id
-}
-# resource "aws_route_table_association" "private-route-2-association" {
-#   route_table_id = aws_route_table.private-route-table.id
-#   subnet_id      = aws_subnet.private-subnet-2.id
-# }
