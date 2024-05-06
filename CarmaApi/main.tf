@@ -237,7 +237,7 @@ resource "null_resource" "docker_push" {
   provisioner "local-exec" {
     interpreter = ["PowerShell", "-Command"]
     command     = <<EOF
-      docker buildx build -t "${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/ecrepo:latest" -f C:\Users\Varam\OneDrive\Desktop\.vscode\.vscode\CodeBase\Dockerfile .
+      docker build -t "${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/ecrepo:latest" -f C:\Users\Varam\OneDrive\Desktop\.vscode\.vscode\CodeBase\Dockerfile .
 	    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com
       docker push ${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/ecrepo:latest
 	    EOF
