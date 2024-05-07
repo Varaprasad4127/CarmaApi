@@ -14,9 +14,6 @@ Create a Terraform codebase to deploy a simple web server microservice on a clou
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 5.48.0 |
 | <a name="provider_null"></a> [null](#provider\_null) | 3.2.2 |
 
-## Modules
-
-No modules.
 
 ## Resources
 
