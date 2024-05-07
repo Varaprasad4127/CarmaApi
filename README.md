@@ -102,7 +102,7 @@ Instance Security group (traffic ALB -> EC2, ssh -> EC2).
 
 ## main.tf
 
-A load balancer is created in the public subnet to act as a reverse proxy. alb listener resource is created and configured to listen on port 80 and forward to the target group.
+A load balancer is created in the public subnet to act as a reverse proxy.  alb listener resource is created and configured to listen on port 80 and forward to the target group.
 
 An ecr repository is created. 
 
@@ -127,7 +127,7 @@ The local ssh keys are added to the bastion host and the private ec2 instance. W
 
 In PuTTYgen, choose Conversions > Import Key and select your PEM-formatted private key and click on save the private key.
 
-After you convert the private key, open Pageant, which runs as a Windows service.  To import the PuTTY-formatted key into Pageant, double-click the Pageant icon in the notification area and then click Add Key. When configuring the connections for SSH in PuTTY, check the Allow agent forwarding box and click on open. With agent forwarding enabled in the PuTTY configuration, we can now connect from the bastion to any other instance in the VPC. we don’t need to have the SSH private key located on the bastion host. To connect to other instances, use the command "ssh ec2-user@ip".
+After we convert the private key, open Pageant, which runs as a Windows service.  To import the PuTTY-formatted key into Pageant, double-click the Pageant icon in the notification area and then click Add Key. When configuring the connections for SSH in PuTTY, check the Allow agent forwarding box and click on open. With agent forwarding enabled in the PuTTY configuration, we can now connect from the bastion to any other instance in the VPC. we don’t need to have the SSH private key located on the bastion host. To connect to other instances, use the command "ssh ec2-user@ip".
 
 We are now able to use the SSH protocol to connect securely to the EC2 Linux instances in private subnets via a bastion host. Please refer screenshot8 for the end result.
 
