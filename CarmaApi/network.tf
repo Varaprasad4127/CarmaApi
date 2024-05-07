@@ -116,6 +116,15 @@ resource "aws_route_table_association" "private-route-2-association" {
 
 
 
+# resource "aws_instance" "test_server" {
+#   ami           = "ami-07caf09b362be10b8"
+#   instance_type = "t2.micro"
+#   subnet_id     = aws_subnet.private-subnet-1.id
+
+#   tags = {
+#     Name = "server1"
+#   }
+# }
 
 
 

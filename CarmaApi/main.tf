@@ -1,14 +1,3 @@
-# resource "aws_instance" "test_server" {
-#   ami           = "ami-07caf09b362be10b8"
-#   instance_type = "t2.micro"
-#   subnet_id     = aws_subnet.private-subnet-1.id
-
-#   tags = {
-#     Name = "server1"
-#   }
-# }
-
-
 # Load Balancer
 resource "aws_lb" "test_alb" {
   name               = "testserver-alb"
@@ -237,6 +226,7 @@ resource "null_resource" "docker_push" {
   provisioner "local-exec" {
     interpreter = ["PowerShell", "-Command"]
     command     = <<EOF
+      # install and start docker service in local computer
       docker build -t "${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/ecrepo:latest" -f C:\Users\Varam\OneDrive\Desktop\.vscode\.vscode\CodeBase\Dockerfile .
 	    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com
       docker push ${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/ecrepo:latest
