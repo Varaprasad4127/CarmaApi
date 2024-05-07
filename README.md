@@ -123,7 +123,7 @@ It displays the dns adress of load balancer as output. This adress is used to ac
 
 ## SSH
 
-The local ssh keys are added to the bastion host and the private ec2 instance. We are able to ssh into the private instance through the bastion host. In Windows, we can connect to Linux VPC instances using PuTTY. If you’re using an existing .pem key pair you can convert it to a .ppk file using PuTTYgen.
+configure ssh agent on the local machine. Create an ssh key pair and add it to the SSH agent. The local ssh keys are also added to the bastion host and the private ec2 instance. We are able to ssh into the private instance through the bastion host. In Windows, we can connect to Linux VPC instances using PuTTY. If you’re using an existing .pem key pair you can convert it to a .ppk file using PuTTYgen.
 
 In PuTTYgen, choose Conversions > Import Key and select your PEM-formatted private key and click on save the private key.
 
