@@ -52,6 +52,10 @@ DOCKER
 SSH AGENT
 
 PUTTY
+
+## OS
+This POC Assignment is implemented on a windows OS
+
 ## Providers
 
 | Name | Version |

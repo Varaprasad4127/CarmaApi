@@ -3,8 +3,7 @@
 Create a Terraform codebase to deploy a simple web server microservice on a cloud environment, containerized with Docker and accessible via a Load Balancer.
 <!-- BEGIN_AUTOMATED_TF_DOCS_BLOCK -->
 <!-- END_AUTOMATED_TF_DOCS_BLOCK -->
-## OS
-This POC Assignment is implemented on a windows OS
+
 <!-- BEGIN_TF_DOCS -->
 
 
