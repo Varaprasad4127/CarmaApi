@@ -4,13 +4,21 @@ This is sample readme for terraform module
 <!-- BEGIN_AUTOMATED_TF_DOCS_BLOCK -->
 <!-- END_AUTOMATED_TF_DOCS_BLOCK -->
 ## Footer
-Contributor Names
+This POC Assignment is implemented on a windows OS
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.0 |
+AWS
+
+TERRAFORM
+
+AWS CLI
+
+DOCKER
+
+SSH AGENT
+
+PUTTY
 
 ## Providers
 
