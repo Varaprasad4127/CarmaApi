@@ -2,10 +2,14 @@
 ## Requirements
 
 DevOps Junior Assignment: Terraform Deployment for Microservice
+
 Objective
+
 Create a Terraform codebase to deploy a simple web server microservice on a cloud environment,
 containerized with Docker and accessible via a Load Balancer.
+
 Context
+
 The goal of this exercise is to test your understanding of a Cloud Compute deployment with Terraform.
 You are tasked with creating a codebase for a microservice deployment on a cloud environment, using
 Terraform.
@@ -16,7 +20,9 @@ The service should be deployed on a single VM instance as a docker container. Th
 pulled from the registry specified earlier.
 The service should not be accessible from the internet but only from a Load Balancer, except for an SSH
 connection from specific IP addresses.
+
 Tasks
+
 1. Dockerfile Creation
 • Create a Dockerfile for building the Docker image of the simple web server.
 • Use a basic web server like nginx or Apache serving a static HTML page.
