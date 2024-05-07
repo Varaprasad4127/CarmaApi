@@ -48,15 +48,57 @@ the Load Balancer.
 
 CarmaApi
 
-## Resources
+## POC
 
-No resources.
+## provider.tf
 
-## Inputs
+AWS is configured as the cloud provider using terraform. AWS CLI is installed in local computer and the credentials file is used to pass the access key and private key securely.
 
-No inputs.
+## network.tf
 
-## Outputs
+vpc is created.
 
-No outputs.
+Public subnets are created.
+
+Private subnets are created.
+
+Internet Gateway for the public subnet is created.
+
+NAT Gateway for the public subnet is created.
+
+Route tables for the subnets are created.
+
+Routing the public subnet traffic through the Internet Gateway.
+
+Routing NAT Gateway.
+
+Associate the newly created route tables to the subnets.
+
+Security Groups are created and configured with necessary inbound and outbound rules.
+
+ALB Security Group (Traffic Internet -> ALB).
+
+Instance Security group (traffic ALB -> EC2, ssh -> EC2).
+
+## main.tf
+
+A load balancer is created in the public subnet to act as a reverse proxy. alb listener resource is created and configured to listen on port 80 and forward to the target group.
+
+An ecr repository is created.
+
+A null resource is used to execute a script which will build a docker image for the dockerfile created locally. Also it logins to the aws ecr using AWS CLI from powershell. After logging in, the local docker image for the sample app html page is pushed to the remote aws ecr repository.
+
+An autoscaling group is created which spins up a single instance in the private subnet. A launch configuration template was created with the desired configuration of the virtual machine and it is attached to the auto scaling group. IAM role and policy are created which will grant all the necessary permissions to the private ec2. The launch template also has user data script which will be executed when the instance spins up. The script installs docker in the virtual machine. It retrieves the docker image from the ecr repository and deploys it on the server.
+
+a bastion server is created in the public subnet. A local ssh key pair is created and the key pair's public key is registered with AWS to allow logging-in to EC2 instances.
+
+## variable.tf 
+
+Contains all the variables used in configuration.
+
+## output.tf
+
+It displays the dns adress of load balancer as output.
+
+
 <!-- END_TF_DOCS -->
