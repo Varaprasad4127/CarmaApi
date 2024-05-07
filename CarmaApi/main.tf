@@ -76,9 +76,9 @@ data "aws_iam_policy_document" "ec2" {
   }
 }
 
-resource "aws_iam_policy" "session-manager" {
-  description = "session-manager"
-  name        = "session-manager"
+resource "aws_iam_policy" "test_iam_policy" {
+  description = "testserver iam policy"
+  name        = "privateec2policy"
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -129,28 +129,28 @@ resource "aws_iam_policy" "session-manager" {
 }
 
 resource "aws_iam_role_policy_attachment" "test-attach" {
-  role       = aws_iam_role.session-manager.name
-  policy_arn = aws_iam_policy.session-manager.arn
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = aws_iam_policy.test_iam_policy.arn
 }
 
-resource "aws_iam_role" "session-manager" {
+resource "aws_iam_role" "ec2_role" {
   assume_role_policy = data.aws_iam_policy_document.ec2.json
-  name               = "session-manager"
+  name               = "ec2role"
   tags = {
-    Name = "session-manager"
+    Name = "ec2role"
   }
 }
 
-resource "aws_iam_instance_profile" "session-manager" {
-  name = "session-manager"
-  role = aws_iam_role.session-manager.name
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "ec2profile"
+  role = aws_iam_role.ec2_role.name
 }
 
 resource "aws_instance" "bastion" {
   ami                         = lookup(var.amis, var.region)
   instance_type               = var.instance_type
   key_name                    = aws_key_pair.terraform-lab.key_name
-  iam_instance_profile        = aws_iam_instance_profile.session-manager.id
+  iam_instance_profile        = aws_iam_instance_profile.ec2_profile.id
   associate_public_ip_address = true
   security_groups             = [aws_security_group.ec2.id]
   subnet_id                   = aws_subnet.public-subnet-1.id
@@ -165,7 +165,7 @@ resource "aws_launch_configuration" "ec2" {
   instance_type               = var.instance_type
   security_groups             = [aws_security_group.ec2.id]
   key_name                    = aws_key_pair.terraform-lab.key_name
-  iam_instance_profile        = aws_iam_instance_profile.session-manager.id
+  iam_instance_profile        = aws_iam_instance_profile.ec2_profile.id
   associate_public_ip_address = false
   user_data                   = <<-EOL
   #!/bin/bash -xe
