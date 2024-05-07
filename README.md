@@ -9,7 +9,7 @@ No providers.
 
 ## Modules
 
-No modules.
+CarmaApi
 
 ## Resources
 
