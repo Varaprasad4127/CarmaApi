@@ -6,19 +6,7 @@ Create a Terraform codebase to deploy a simple web server microservice on a clou
 ## OS
 This POC Assignment is implemented on a windows OS
 <!-- BEGIN_TF_DOCS -->
-## Requirements
 
-AWS
-
-TERRAFORM
-
-AWS CLI
-
-DOCKER
-
-SSH AGENT
-
-PUTTY
 
 ## Providers
 

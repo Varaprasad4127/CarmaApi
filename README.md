@@ -1,5 +1,5 @@
 <!-- BEGIN_TF_DOCS -->
-## Requirements
+## Assignment Introduction
 
 DevOps Junior Assignment: Terraform Deployment for Microservice
 
@@ -38,6 +38,20 @@ Tasks
 • Ensure that the service is not directly accessible from the internet but only through
 the Load Balancer.
 • Allow SSH access only from specific IP addresses.
+
+## Requirements
+
+AWS
+
+TERRAFORM
+
+AWS CLI
+
+DOCKER
+
+SSH AGENT
+
+PUTTY
 ## Providers
 
 | Name | Version |
