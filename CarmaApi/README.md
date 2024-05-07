@@ -4,7 +4,7 @@ This is sample readme for terraform module
 <!-- BEGIN_AUTOMATED_TF_DOCS_BLOCK -->
 <!-- END_AUTOMATED_TF_DOCS_BLOCK -->
 ## Footer
-This Assignment is implemented on a windows OS
+This POC Assignment is implemented on a windows OS
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
