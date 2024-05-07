@@ -40,7 +40,7 @@ the Load Balancer.
 • Allow SSH access only from specific IP addresses.
 ## Providers
 
-No providers.
+AWS 5.48.0
 
 ## Modules
 
