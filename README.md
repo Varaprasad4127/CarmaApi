@@ -50,6 +50,8 @@ CarmaApi
 
 ## POC
 
+## CarmaApi module
+
 ## provider.tf
 
 AWS is configured as the cloud provider using terraform. AWS CLI is installed in local computer and the credentials file is used to pass the access key and private key securely.
@@ -84,9 +86,9 @@ Instance Security group (traffic ALB -> EC2, ssh -> EC2).
 
 A load balancer is created in the public subnet to act as a reverse proxy. alb listener resource is created and configured to listen on port 80 and forward to the target group.
 
-An ecr repository is created.
+An ecr repository is created. 
 
-A null resource is used to execute a script which will build a docker image for the dockerfile created locally. Also it logins to the aws ecr using AWS CLI from powershell. After logging in, the local docker image for the sample app html page is pushed to the remote aws ecr repository.
+A null resource is used to execute a script which will build a docker image for the dockerfile created locally. Also it logins to the aws ecr using AWS CLI from powershell. After logging in, the local docker image for the sample app html page is pushed to the remote aws ecr repository. Please refer screenshot11 to view the pushed image in the repository.
 
 An autoscaling group is created which spins up a single instance in the private subnet. A launch configuration template was created with the desired configuration of the virtual machine and it is attached to the auto scaling group. IAM role and policy are created which will grant all the necessary permissions to the private ec2. The launch template also has user data script which will be executed when the instance spins up. The script installs docker in the virtual machine. It retrieves the docker image from the ecr repository and deploys it on the server.
 
@@ -98,7 +100,27 @@ Contains all the variables used in configuration.
 
 ## output.tf
 
-It displays the dns adress of load balancer as output.
+It displays the dns adress of load balancer as output. This adress is used to access the service deployed on the private server. Please refer screenshot9 and screenshot10 for the end result. 
+
+
+## SSH
+
+The local ssh keys are added to the bastion host and the private ec2 instance. We are able to ssh into the private instance through the bastion host. In Windows, we can connect to Linux VPC instances using PuTTY. If you’re using an existing .pem key pair you can convert it to a .ppk file using PuTTYgen.
+
+In PuTTYgen, choose Conversions > Import Key and select your PEM-formatted private key and click on save the private key.
+
+After you convert the private key, open Pageant, which runs as a Windows service.  To import the PuTTY-formatted key into Pageant, double-click the Pageant icon in the notification area and then click Add Key. When configuring the connections for SSH in PuTTY, check the Allow agent forwarding box and click on open. With agent forwarding enabled in the PuTTY configuration, we can now connect from the bastion to any other instance in the VPC. we don’t need to have the SSH private key located on the bastion host. To connect to other instances, use the command "ssh ec2-user@ip".
+
+We are now able to use the SSH protocol to connect securely to the EC2 Linux instances in private subnets via a bastion host. Please refer screenshot8 for the end result.
+
+## dockerfile
+
+The Dockerfile contains the commands or instructions used during the build to create the nginx Docker image.
+
+## Screenshots
+
+This folder contains the screenshots of end results achieved subsequent to the POC.
+
 
 
 <!-- END_TF_DOCS -->
